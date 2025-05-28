@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30503.244
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35527.113 d17.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataMatrix.net", "DataMatrix.net\DataMatrix.net.csproj", "{74E675E8-11CE-46DA-AEF4-AE7C996C4C62}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataMatrixTest", "DataMatrixTest\DataMatrixTest.csproj", "{741AA864-6017-41AE-A095-F49A0C84B625}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrPrint", "BrPrint\BrPrint.csproj", "{CE373182-AFE2-4523-8E00-3B078C82D4F7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{741AA864-6017-41AE-A095-F49A0C84B625}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{741AA864-6017-41AE-A095-F49A0C84B625}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{741AA864-6017-41AE-A095-F49A0C84B625}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE373182-AFE2-4523-8E00-3B078C82D4F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE373182-AFE2-4523-8E00-3B078C82D4F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE373182-AFE2-4523-8E00-3B078C82D4F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE373182-AFE2-4523-8E00-3B078C82D4F7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
