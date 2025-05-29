@@ -16,6 +16,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -69,7 +70,7 @@ namespace BrPrint
             string path = @"C:\temp\BrPrint\OutPutBarcode.png";
             string filename = "Out.png";
             Bitmap bb = new Bitmap(1000, 1000);
-            if (LotNoBox.Text == "") { MessageBox.Show("Enter Lot No"); return; }
+            if (LotNoBox.Text == "") { System.Windows.MessageBox.Show("Enter Lot No"); return; }
             bb =  new DmtxImageEncoder().EncodeImage(LotNoBox.Text);
             imageView.Source = BitmapToImageSource(bb);
             LotNoText.Text = LotNoBox.Text;
@@ -99,9 +100,22 @@ namespace BrPrint
 
         private void PrintBtn_Click(object sender, RoutedEventArgs e) //print button
         {
-            printerIt.Print();
+            //PrintDocument pd = new PrintDocument();
+           // pd.PrintPage += new PrintPageEventHandler(this.pd_PrintPage);
 
-            
+            System.Windows.Forms.PrintDialog printdlg = new System.Windows.Forms.PrintDialog();
+            PrintPreviewDialog printPrvDlg = new PrintPreviewDialog();
+
+            // preview the assigned document or you can create a different previewButton for it
+            printPrvDlg.Document = printerIt;
+            printPrvDlg.ShowDialog(); // this shows the preview and then show the Printer Dlg below
+
+            printdlg.Document = printerIt;
+
+            //if (printdlg.ShowDialog() == DialogResult)
+            //{
+            //    pd.Print();
+            //}
         }
 
         private void LoadListOfPrinter()
