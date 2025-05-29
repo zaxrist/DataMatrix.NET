@@ -7,11 +7,51 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <Button x:Name="btprint" Content="print" Click="btprint_Click"/>
-        <Image x:Name="imageView" Grid.Row="1" Stretch="None" Margin="10"/>
+        
+
+        <TabControl>
+            <TabItem Header="Print">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="50"/>
+                    </Grid.RowDefinitions>
+                    <Button x:Name="btprint" Content="Generate Barcode" Click="btprint_Click"/>
+                    <TextBox x:Name="LotNoBox" Grid.Row="1"/>
+                    
+                                     
+                    <Border BorderThickness="1" BorderBrush="Black" Grid.Row="2" Margin="30" x:Name="brdr">
+                        <Grid x:Name="PrinterGrid" >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Image x:Name="imageView"  Stretch="None" Margin="10" Grid.Column="0"/>
+                            <TextBlock x:Name="LotNoText" Grid.Column="1"  VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="70" Foreground="White"/>
+                        </Grid>
+                    </Border>
+                    
+                    <Grid Grid.Row="2" Background="White">
+                        <Image x:Name="PrinterViewr"/>
+                    </Grid>
+
+                    <Button x:Name="PrintBtn" Grid.Row="3" Content="Print Barcode" Click="PrintBtn_Click"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Config">
+                <Grid Margin="20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40"/>
+                        <RowDefinition Height="40"/>
+                        <RowDefinition Height="40"/>
+                    </Grid.RowDefinitions>
+                    <Button Content="Save Config" Click="SaveDefaultPrinterClick"/>
+                    <ComboBox x:Name="PrinterListCmb" Grid.Row="1"/>
+                </Grid>
+                
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>

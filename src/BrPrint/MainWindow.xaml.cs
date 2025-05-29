@@ -4,15 +4,20 @@ using Svg;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.UI;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -25,82 +30,97 @@ namespace BrPrint
     /// </summary>
     public partial class MainWindow : Window
     {
+        PrintDocument printerIt = new PrintDocument();
         public MainWindow()
         {
             InitializeComponent();
+            printerIt.PrinterSettings.PrinterName = "SATO CL4NX Plus 305dpi";
+            printerIt.PrintPage += PrinterIt_PrintPage;
+            printerIt.PrinterSettings.Copies = 1;
+            printerIt.PrinterSettings.DefaultPageSettings.Landscape = false; // Set landscape mode
+            printerIt.PrinterSettings.DefaultPageSettings.Margins = new Margins(1, 1, 1, 1); // Set margins to zero
+            printerIt.PrinterSettings.PaperSizes.Add(new PaperSize("Custom", 20, 20)); // Set custom paper size
+
+            LoadListOfPrinter();
         }
 
-        private void btprint_Click(object sender, RoutedEventArgs e)
+        private void PrinterIt_PrintPage(object sender, PrintPageEventArgs e)
         {
-            //TestRawEncoder("Hello");
-            // bool[,] rawData = new DmtxImageEncoder().EncodeRawData("HELLO WORLD");
-            MessageBox.Show(TestRawEncoder("sdf"));
-
-            //MessageBox.Show(new DmtxImageEncoder().EncodeRawData("HELLO WORLD").ToString());
-            //var svgContent = new DmtxImageEncoder().en("HELLO WORLD");
-            //var byteArray = Convert.FromBase64String(svgContent);
-            //using (var stream = new MemoryStream(byteArray))
-            //{
-            //    var svgDocument = SvgDocument.Open<SvgDocument>(stream);
-            //    var bitmap = svgDocument.Draw();
-
-            //    using (MemoryStream stream2 = new MemoryStream())
-            //    {
-            //        bitmap.Save(stream2, System.Drawing.Imaging.ImageFormat.Png);  // Or any other image format
-            //        stream.Position = 0;
-
-            //        BitmapImage bitmapImage = new BitmapImage();
-            //        bitmapImage.BeginInit();
-            //        bitmapImage.StreamSource = stream2;
-            //        bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-            //        bitmapImage.EndInit();
-            //        imageView.Source = bitmapImage;
-
-
-            //       // return bitmapImage;
-            //    }
-
-
-            // bitmap.Save(@"C:\temp\0\1.png");
-            //}
-
-            //var svgContent = new DmtxImageEncoder().EncodeSvgImage("HELLO WORLD");
-            //var byteArray = Convert.FromBase64String(svgContent);
-            //using (var stream = new MemoryStream(byteArray))
-            //{
-            //    var bitmap = new SKBitmap(500, 500);
-            //    var canvas = new SKCanvas(bitmap);
-            //    // load the SVG
-            //    var svg = new SkiaSharp.Extended.Svg.SKSvg(new SKSize(100, 100));
-            //    svg.Load(stream);
-            //    // draw the SVG to the bitmap
-            //    canvas.DrawPicture(svg.Picture);
-            //    var skData = SKImage.FromBitmap(bitmap).Encode(SKEncodedImageFormat.Png, 100);
-            //    using (var file = new FileStream(@"C:\temp\0\1.png", FileMode.Create))
-            //    {
-            //        skData.SaveTo(file);
-            //    }
-            //}
+            Graphics graphics = e.Graphics;
+            graphics.DrawImage(GridToImage(), new System.Drawing.Rectangle(0, 0, GridToImage().Width, GridToImage().Height));
+            e.HasMorePages = false;
         }
 
-        private string TestRawEncoder(string text)
+        private Bitmap GridToImage()
         {
-            string thestrig = "";
-            DmtxImageEncoder encoder = new DmtxImageEncoder();
-            bool[,] rawData = encoder.EncodeRawData(text);
-           // thestrig
-            for (int rowIdx = 0; rowIdx < rawData.GetLength(1); rowIdx++)
+            RenderTargetBitmap rnd = new RenderTargetBitmap((int)PrinterGrid.ActualWidth, (int)PrinterGrid.ActualHeight, 96, 96, PixelFormats.Default);
+            rnd.Render(PrinterGrid);
+            MemoryStream stream = new MemoryStream();
+            BitmapEncoder encoder = new BmpBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(rnd));
+            encoder.Save(stream);
+            Bitmap bitmap = new Bitmap(stream);
+            return bitmap;
+        }
+
+
+        private void btprint_Click(object sender, RoutedEventArgs e) //generate barcode and show printview
+        {
+            string path = @"C:\temp\BrPrint\OutPutBarcode.png";
+            string filename = "Out.png";
+            Bitmap bb = new Bitmap(1000, 1000);
+            if (LotNoBox.Text == "") { MessageBox.Show("Enter Lot No"); return; }
+            bb =  new DmtxImageEncoder().EncodeImage(LotNoBox.Text);
+            imageView.Source = BitmapToImageSource(bb);
+            LotNoText.Text = LotNoBox.Text;
+
+            PrinterViewr.Source = BitmapToImageSource(GridToImage());
+        }
+
+        private BitmapImage BitmapToImageSource(Bitmap bitmap)
+        {
+            using (MemoryStream memory = new MemoryStream())
             {
-                for (int colIdx = 0; colIdx < rawData.GetLength(0); colIdx++)
-                {
-                    thestrig+=rawData[colIdx, rowIdx] ? "X" : " ";
-                }
-                thestrig += "\n";
-                // Debug.WriteLine("");
+                bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
+                memory.Position = 0;
+                BitmapImage bitmapimage = new BitmapImage();
+                bitmapimage.BeginInit();
+                bitmapimage.StreamSource = memory;
+                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapimage.EndInit();
+
+                return bitmapimage;
             }
-            // Debug.WriteLine("");
-            //Debug.WriteLine("================");
-            return thestrig;
+        }
+
+        [DllImport("winspool.drv",CharSet = CharSet.Auto,SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern Boolean SetDefaultPrinter(String name);
+
+        private void PrintBtn_Click(object sender, RoutedEventArgs e) //print button
+        {
+            printerIt.Print();
+
+            
+        }
+
+        private void LoadListOfPrinter()
+        {
+            foreach (string printer in System.Drawing.Printing.PrinterSettings.InstalledPrinters)
+            {
+                PrinterListCmb.Items.Add(printer);
+            }
+        }
+        private void SaveDefaultPrinterClick(object sender, RoutedEventArgs e)
+        {
+            
+            printerIt.PrinterSettings.PrinterName = "SATO CL4NX Plus 305dpi";
+            //MessageBox.Show(PrinterListCmb.SelectedItem.ToString() + " is set to default printer");
+            //if(PrinterListCmb.SelectedItem !=  "")
+            //{
+            //    MessageBox.Show("Please select a printer.");
+            //    return;
+            //}
         }
     }
 }
